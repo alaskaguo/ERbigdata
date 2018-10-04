@@ -1,0 +1,47 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Aug 29 19:52:38 2018
+
+@author: 郭峰医生
+"""
+import pandas as pd
+import os
+''' get the file name list '''
+def getfilename(path):
+    for root,dirs,files in os.walk(path):
+        file_list = []
+        for file in files:
+            file_path = root + '/'+file
+            file_list.append(file_path)
+    return file_list;
+
+''' get columns name from excel file '''
+def getcolumnsname(path):
+    name = pd.read_excel(path)
+    columns_name = list(name['columns_name'])
+    return columns_name;
+
+def combinedata(file_list,columns_name):
+    '''load and combine files in files list'''
+    file = []
+    for f in file_list:
+        file_df = pd.read_excel(f,names = columns_name)
+        file.append(file_df)
+    data_total = pd.concat(file)
+    return data_total;
+
+def intage(age):
+    ''' convert age string to age int'''
+    agenum = []
+    if ('岁' in age) == False:
+        recordage = 0
+    else:
+        for letter in age:
+            if letter == '岁':
+                break;
+            else:
+                agenum.append(letter)
+        recordage = int(''.join(agenum))         
+    return recordage;
+
+  
