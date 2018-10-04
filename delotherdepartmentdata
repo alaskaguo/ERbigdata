@@ -1,0 +1,13 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Mon Sep 24 11:02:38 2018
+
+@author: 郭峰医生
+"""
+import pandas as pd
+'''load original data'''
+df1 = pd.read_csv('D:\pythonbook\pythonwork\ERdata\datatotal201808.csv')
+keshifenbu = df1['department'].value_counts() # count department distribute
+'''exact the data of er and save as df_er.csv'''
+df_er = df1[(df1['department'] == '急诊科') | (df1['department'] == '急诊科(2)')]
+df_er.to_csv('D:\pythonbook\pythonwork\ERdata\dataerto201808.csv')
