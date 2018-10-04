@@ -1,0 +1,42 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Tue Sep 25 10:26:59 2018
+
+@author: 郭峰医生
+"""
+import pandas as pd
+import sys
+sys.path.append("d:/myresearch/data")
+import func as fn
+
+df = pd.read_csv('D:\pythonbook\pythonwork\ERdata\dataerto201808.csv')
+ # load file
+record_time = pd.to_datetime(df['record_time'])
+ # exact time columns and counvert to datetime
+deltaday = pd.datetime(2018,9,22) - record_time
+ # count deltadays between get data date and record date
+
+deltayear = (deltaday/365).apply(lambda x : x.days)
+
+# count age distribute
+agecount = df['currentage'].value_counts()   
+ # insert to df
+df['deltayear'] = deltayear
+ #convert currentage to int, calculat record age
+df['agenum'] = df['currentage'].apply(fn.intage)
+df['recordage'] = df['agenum'] - df['deltayear']
+ # del unused columns
+listdel = ['Unnamed: 0', 'Unnamed: 0.1', 'unknow_1','unknow_2','deltayear',
+       'agenum']
+df_1 = df.drop(listdel,axis = 1)
+
+ # there a four datas out of range, drop them
+df_2 = df_1[(df_1['recordage'] >= 0) & (df_1['recordage'] < 120)]
+ # some info about the final data
+df2_info = df_2.info()
+df2_des = df_2.describe()
+ # write to csv,finaldatato2018
+df2_des.to_csv('d:/myresearch/data/df2_describe.csv')
+df_2.to_csv('d:/myresearch/data/finaldatato2018.csv')
+
+ 
