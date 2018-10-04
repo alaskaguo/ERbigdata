@@ -1,0 +1,18 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Aug 29 17:45:07 2018
+
+@author: 郭峰医生
+"""
+import pandas as pd
+import sys
+sys.path.append("d:/myresearch/data")
+from func import *
+
+path1 = 'd:/myresearch/data/data'
+file = getfilename(path1)
+path2 = 'd:/myresearch/data/columns.xlsx'
+colu = getcolumnsname(path2)
+
+df = combinedata(file,colu)
+df.to_csv('d:/myresearch/data/datatotal201808.csv')
