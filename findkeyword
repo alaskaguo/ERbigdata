@@ -1,0 +1,19 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Mon Dec 17 18:15:39 2018
+
+@author: Administrator
+"""
+
+import pandas as pd
+df = pd.read_csv(r'E:\myresearch\myer\finaldatato2018.csv')
+df['record_time'] = pd.to_datetime(df['record_time'])
+df.set_index('record_time', inplace=True)
+df2018 = df[(df.index.year == 2018) & (df['diagnosis'].notnull())]
+#dfheart = df2018[(df2018['diagnosis'] == '阵发性室上性心动过速') | df2018['diagnosis'] == '心律失常')]
+
+diastr = '心律|心房|房颤|心室|室性|室上性|颤动|扑动|房扑|过速'
+#df1 = df2018[df2018['diagnosis'].isin(alist)]
+dfcard = df2018[['patient_id','patient_name','diagnosis']][df2018['diagnosis'].str.contains(diastr)]
+
+dfcard.to_csv(r'E:\myresearch\myer\心律失常.csv', encoding = 'utf_8_sig'))
