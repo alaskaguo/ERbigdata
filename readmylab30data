@@ -1,0 +1,73 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Sat Dec  8 19:22:38 2018
+
+@author: Doctor Guo
+"""
+from bs4 import BeautifulSoup
+import os
+import pandas as pd
+'''
+get all html files in the dir
+path:the dir path
+'''
+def report_list(path):   
+    L=[]   
+    for root, dirs, files in os.walk(path):  
+        for file in files:  
+            if os.path.splitext(file)[1] == '.html':  
+                L.append(os.path.join(root, file))  
+    return L 
+'''
+根据路径读取网页文件，提取人口学资料和测量资料，生成一个只有一行的DF,供逐行追加
+path:网页所在路径
+'''
+def mydata(path):
+    with open(path, encoding='utf-8') as file: 
+            # 生成soup
+            soup = BeautifulSoup(file,'xml')  
+            #查找人口学资料标签                          
+            LabelAnag_node = soup.find_all("label", class_ = 'LabelAnag')                
+            #查找测量标签
+            LabelMeasure_node = soup.find_all("label", class_ = 'LabelMeasure')
+            #生成人口学标签列表
+            LabelAnag = ["".join(l.text.split()) for l in LabelAnag_node]     
+            #生成测量标签列表
+            LabelMeasure = ["".join(l.text.split()) for l in LabelMeasure_node]           
+            #查找基本人口学资料值
+            Anag_node = soup.find_all("span", class_ = 'Anag')
+            #生成人口学资料值列表
+            Anag = [v.text for v in Anag_node]
+            #查找测量值节点
+            Measure_node = soup.find_all("span", class_ = 'Measure')
+            #生成测量值列表并提取数值，舍去单位
+            Measure = [v.text for v in Measure_node]
+            Measure_value = [i for i in Measure if Measure.index(i) % 2 == 0]
+    #建空DF        
+    data = []
+    df = pd.DataFrame(data)                       
+    #根据已有值生成标签和值得字典
+    dicdata = dict(zip(LabelAnag+LabelMeasure,Anag+Measure_value))    
+    #将字典值转换为列表形式，以便以后按行添加   
+    datarow = {}
+    for k,v in dicdata.items():
+        v = str(v)
+        l =['0']
+        l[0] = v
+        datarow[k] = l
+    #向df内添加一行
+    df = df.append(pd.DataFrame(datarow))    
+    return df
+
+htmlist = report_list(r'E:\myresearch\scrapy')            
+#碱空DF
+data = []
+df = pd.DataFrame(data)  
+#逐个追加    
+for path in htmlist:
+    df = pd.concat([df,mydata(path)],axis = 0)
+#存储文件
+df.to_csv('e:/myresearch/scrapy/frommylab30.csv')
+    
+
+    
