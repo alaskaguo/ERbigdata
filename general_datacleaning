@@ -1,0 +1,54 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Tue Dec 18 21:31:14 2018
+
+@author: alaskaguo
+新下载数据库基本处理
+1、合并各数据表
+2、计算记录时年龄（需要填入下载日期）
+3、与总表（finaldata）合并
+"""
+
+import pandas as pd
+import func as fn
+import sys
+sys.path.append("e:/myresearch/myer")
+#the path of the files
+path1 = 'e:/myresearch/myer/data/20181218'
+file = fn.getfilename(path1)
+#the path of the columns name
+path2 = 'e:/myresearch/myer/columns.xlsx'
+colu = fn.getcolumnsname(path2)
+#combine the files under the dir
+df = fn.combinedata(file,colu)
+record_time = pd.to_datetime(df['record_time'])
+ # exact time columns and counvert to datetime
+deltaday = pd.datetime(2018,12,18) - record_time
+ # count deltadays between get data date and record date
+deltayear = (deltaday/365).apply(lambda x : x.days)
+# count age distribute
+agecount = df['currentage'].value_counts()   
+ # insert to df
+df['deltayear'] = deltayear
+ #convert currentage to int, calculat record age
+df['agenum'] = df['currentage'].apply(fn.intage)
+df['recordage'] = df['agenum'] - df['deltayear']
+ # del unused columns
+listdel = ['unknow_1','unknow_2','deltayear','agenum']
+df_1 = df.drop(listdel,axis = 1)
+# there a four datas out of range, drop them
+df_2 = df_1[(df_1['recordage'] >= 0) & (df_1['recordage'] < 120)]
+# some info about the final data
+df2_info = df_2.info()
+df2_des = df_2.describe()
+# write to csv,finaldatato2018
+#df2_des.to_csv('e:/myresearch/myer/df2_describe.csv')
+#df_2.to_csv('e:/myresearch/myer/finaldatato2018.csv')
+#choose the ER patients
+df_er = df_2[(df_2['department'] == '急诊科') | (df_2['department'] == '急诊科(2)')]
+#df_er.to_csv('e:/myresearch/myer/finaldata.csv')
+#load final data (lasttime)
+finaldata = pd.read_csv(r'e:/myresearch/myer/finaldata.csv')
+#append df_er to final data and save
+finaldata = finaldata.append(df_er)
+finaldata.to_csv('e:/myresearch/myer/finaldata.csv')
